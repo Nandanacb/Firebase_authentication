@@ -1,3 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_authentication/forgotpasswordscreen.dart';
+import 'package:firebase_authentication/thirdpage.dart';
 import 'package:flutter/material.dart';
 
 class Secondpage extends StatefulWidget {
@@ -6,6 +9,38 @@ class Secondpage extends StatefulWidget {
 }
 
 class _SecondpageState extends State<Secondpage> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
+  Future<void> signIn() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim());
+      print('User signed in');
+    } catch (e) {
+      print('sign-in error:$e');
+      _showErrorDialog(e.toString());
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text('Error'),
+              content: Text(message),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +59,7 @@ class _SecondpageState extends State<Secondpage> {
             height: 50,
             width: 300,
             child: TextField(
+              controller: _emailController,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), hintText: "email"),
             ),
@@ -33,6 +69,8 @@ class _SecondpageState extends State<Secondpage> {
             height: 50,
             width: 300,
             child: TextField(
+              controller: _passwordController,
+              obscureText: true,
               decoration: InputDecoration(
                   border: OutlineInputBorder(), hintText: "password"),
             ),
@@ -44,7 +82,11 @@ class _SecondpageState extends State<Secondpage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    signIn();
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Thirdpage()));
+                  },
                   style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 223, 119, 153),
                       shape: RoundedRectangleBorder(
@@ -59,9 +101,21 @@ class _SecondpageState extends State<Secondpage> {
           SizedBox(
             height: 10,
           ),
-          Text(
-            "Forgot password ?",
-            style: TextStyle(color: Colors.blue),
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ForgotPasswordScreen()));
+                },
+                child: Text(
+                  "Forgot password ?",
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+            ],
           )
         ],
       ),
